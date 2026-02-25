@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUET Cover Page Generator - Blank Fields</title>
+    <link rel="stylesheet" href="cover.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <div class="app-root">
+
+    <div class="main">
+
+    <div class="panel input-panel">
+        <h2 class="title">RUET Cover Page Generator</h2>
+        
+        <div class="type-selector">
+            <label style="cursor: pointer;"><input type="radio" name="reportType" value="Lab Report" checked onchange="toggleType()"> Lab Report</label>
+            <label style="cursor: pointer;"><input type="radio" name="reportType" value="Assignment" onchange="toggleType()"> Assignment</label>
+        </div>
+
+        <div class="input-group">
+            <label>Upload Logo</label>
+            <input type="file" id="logoInput" accept="image/*">
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group"><label>Series</label><input type="text" id="inSeries" placeholder="e.g. 23 Series"></div>
+            <div class="input-group"><label>Course No</label><input type="text" id="inCourseNo" placeholder="e.g. IPE 1101"></div>
+        </div>
+
+        <div class="input-group"><label>Course Title</label><input type="text" id="inCourseTitle" placeholder="e.g. Engineering Economics"></div>
+
+        <div class="form-grid">
+            <div class="input-group"><label id="labelNo">Experiment No</label><input type="text" id="inExpNo" placeholder="01"></div>
+            <div class="input-group"><label id="labelTitle">Experiment Title</label><input type="text" id="inExpTitle" placeholder="Enter Title Here"></div>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group">
+                <label>Submitted By</label>
+                <textarea id="inSubmittedBy" rows="4" placeholder="Name: ...&#10;Roll: ..."></textarea>
+            </div>
+            <div class="input-group">
+                <label>Submitted To</label>
+                <textarea id="inSubmittedTo" rows="4" placeholder="Teacher's Name&#10;Designation&#10;Department"></textarea>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Date of Submission</label>
+            <input type="text" id="inDate" placeholder="e.g. 10 February 2026">
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-ghost" id="clearBtn" type="button">Clear</button>
+            <button class="btn btn-primary" onclick="generatePDF()">Generate & Download PDF</button>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div id="cover-page">
+            <div class="header-motto">Heaven's Light is Our Guide</div>
+            <div class="uni-name">Rajshahi University of Engineering & Technology</div>
+            <div class="logo-container"><img id="preview-logo" src="" alt=""></div>
+            <div class="dept-name">Department of Industrial & Production Engineering</div>
+            <div class="series-text" id="outSeries"></div>
+            <div class="report-title" id="outMainTitle">Lab Report</div>
+
+            <div class="content-body">
+                <div class="course-info">
+                    <div><strong>Course No:</strong> <span id="outCourseNo"></span></div>
+                    <div><strong>Course Title:</strong> <span id="outCourseTitle"></span></div>
+                </div>
+
+                <div class="alignment-wrapper">
+                    <div class="exp-section">
+                        <div class="exp-row">
+                            <span class="exp-label"><span class="triangle">◢</span> <span id="outLabelNo">Experiment No.</span> :</span>
+                            <span id="outExpNo" style="margin-left: 10px;"></span>
+                        </div>
+                        <div class="exp-row">
+                            <span class="exp-label" style="padding-left: 22px;"><span id="outLabelTitle">Experiment Title</span> :</span>
+                            <span id="outExpTitle" style="margin-left: 10px;"></span>
+                        </div>
+                    </div>
+
+                    <div class="submission-container">
+                        <div class="submission-box">
+                            <span class="sub-title">Submitted by:</span>
+                            <div class="sub-details" id="outSubmittedBy"></div>
+                        </div>
+                        <div class="submission-box">
+                            <span class="sub-title">Submitted to:</span>
+                            <div class="sub-details" id="outSubmittedTo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="date-section">Date of Submission : <span id="outDate"></span></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleType() {
+            const type = document.querySelector('input[name="reportType"]:checked').value;
+            const isAssignment = (type === "Assignment");
+            document.getElementById('labelNo').innerText = isAssignment ? "Assignment No" : "Experiment No";
+            document.getElementById('labelTitle').innerText = isAssignment ? "Assignment Name" : "Experiment Title";
+            document.getElementById('outMainTitle').innerText = type;
+            document.getElementById('outLabelNo').innerText = isAssignment ? "Assignment No." : "Experiment No.";
+            document.getElementById('outLabelTitle').innerText = isAssignment ? "Assignment Name" : "Experiment Title";
+            updatePreview();
+        }
+
+        window.onload = () => {
+            updatePreview();
+            adjustPreviewScale();
+        };
+
+        const fields = ['inSeries', 'inCourseNo', 'inCourseTitle', 'inExpNo', 'inExpTitle', 'inSubmittedBy', 'inSubmittedTo', 'inDate'];
+        fields.forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+
+        function updatePreview() {
+            fields.forEach(id => {
+                const outId = id.replace('in', 'out');
+                if(document.getElementById(outId)) {
+                    document.getElementById(outId).innerText = document.getElementById(id).value;
+                }
+            });
+            adjustPreviewScale();
+        }
+
+        // Scale the cover page so the 210mm sheet fits the preview-area without horizontal scrolling.
+        function adjustPreviewScale() {
+            const previewArea = document.querySelector('.preview-area');
+            const cover = document.getElementById('cover-page');
+            if (!previewArea || !cover) return;
+
+            // available width inside preview area (account for padding)
+            const available = Math.max(64, previewArea.clientWidth - 32);
+            const coverWidth = cover.offsetWidth; // px for 210mm
+
+            // compute scale, never exceed 1
+            const scale = Math.min(1, available / coverWidth);
+
+            // Apply both zoom and transform for better cross-browser behavior
+            cover.style.zoom = scale;
+            cover.style.transform = `scale(${scale})`;
+            cover.style.transformOrigin = 'top center';
+        }
+
+        window.addEventListener('resize', adjustPreviewScale);
+
+        // generatePDF moved to cover.js
+</script>
+
+    </div>
+
+    </div>
+    <script src="cover.js"></script>
+</body>
+</html>

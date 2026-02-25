@@ -1,0 +1,243 @@
+/* Modern centered layout with glass-morphism input panel
+	 - Primary blue: #2563eb
+	 - Background gray: #f8fafc
+	 - Responsive grid for inputs
+*/
+
+:root {
+	--primary-blue: #2563eb;
+	--bg-gray: #f8fafc;
+	--glass-bg: rgba(255, 255, 255, 0.55);
+	--glass-border: rgba(255, 255, 255, 0.65);
+	--muted: rgba(16, 24, 40, 0.6);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+	margin: 0;
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+	background-color: var(--bg-gray);
+	color: var(--muted);
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+}
+
+/* Center everything in the viewport */
+.app-root {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	padding: 2rem;
+}
+
+/* Main flex wrapper: side-by-side panel and preview */
+.main {
+	display: flex;
+	gap: 1.5rem;
+	width: 100%;
+	max-width: 1200px;
+	align-items: flex-start;
+}
+
+/* Support both .panel and legacy .input-panel naming */
+.input-panel,
+.panel.input-panel {
+	width: 400px;
+	flex: 0 0 400px;
+	max-height: calc(100vh - 4rem);
+	overflow-y: auto;
+	position: -webkit-sticky;
+	position: sticky;
+	top: 20px;
+	align-self: flex-start;
+	z-index: 10;
+}
+
+/* Ensure panel keeps glass style while using the fixed width */
+.panel {
+	max-width: 920px;
+}
+
+.preview-area {
+	flex: 1 1 auto;
+	overflow: auto;
+}
+
+/* Card / input panel */
+.panel {
+	width: 100%;
+	max-width: 920px;
+	background: linear-gradient(180deg, rgba(255,255,255,0.66), rgba(255,255,255,0.5));
+	border-radius: 16px;
+	padding: 2rem;
+	box-shadow: 0 12px 40px rgba(16,24,40,0.08);
+	border: 1px solid rgba(255,255,255,0.6);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
+.panel-header {
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:1rem;
+	margin-bottom:1.25rem;
+}
+
+.title {
+	font-size:1.25rem;
+	font-weight:600;
+	color: var(--primary-blue);
+}
+
+.subtitle {
+	font-size:0.95rem;
+	color: rgba(16,24,40,0.7);
+}
+
+/* Input sections use CSS Grid */
+.form-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+	align-items: start;
+}
+
+.form-row {
+	display:flex;
+	flex-direction:column;
+	gap:0.5rem;
+}
+
+.full-width { grid-column: 1 / -1; }
+
+label {
+	font-size:0.95rem;
+	color: rgba(16,24,40,0.75);
+}
+
+/* Input group spacing inside the left panel */
+.input-group {
+	margin-bottom: 25px;
+}
+
+/* Larger, more comfortable inputs */
+input[type="text"], input[type="email"], textarea, select {
+	width:100%;
+	padding:1rem 1.1rem;
+	border-radius: 12px;
+	border: 1px solid rgba(16,24,40,0.06);
+	background: rgba(255,255,255,0.65);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+	font-size:1rem;
+	color: rgba(6,6,7,0.9);
+}
+
+textarea { min-height:120px; resize:vertical; }
+
+input:focus, textarea:focus, select:focus {
+	outline: none;
+	box-shadow: 0 4px 18px rgba(37,99,235,0.12);
+	border-color: rgba(37,99,235,0.35);
+}
+
+.actions {
+	display:flex;
+	gap:0.75rem;
+	justify-content:flex-end;
+	margin-top:1.25rem;
+}
+
+.btn {
+	padding:0.95rem 1.25rem;
+	border-radius:12px;
+	border: none;
+	cursor: pointer;
+	font-weight:700;
+	font-size:1rem;
+}
+
+.btn-primary {
+	background: linear-gradient(180deg, var(--primary-blue), #1e40af);
+	color: white;
+	box-shadow: 0 8px 24px rgba(37,99,235,0.18);
+}
+
+.btn-ghost {
+	background: transparent;
+	border: 1px solid rgba(16,24,40,0.06);
+	color: rgba(16,24,40,0.8);
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 760px) {
+	.form-grid { grid-template-columns: 1fr; }
+	.panel { padding:1.25rem; }
+	.title { font-size:1.1rem; }
+}
+
+/* Responsive breakpoint: stack vertically on narrower desktops/tablets */
+@media (max-width: 1024px) {
+	.main { flex-direction: column; }
+	.input-panel, .panel.input-panel { width: 100%; flex: none; max-height: none; }
+	.preview-area { width: 100%; }
+}
+
+/* Utility */
+.muted { color: rgba(16,24,40,0.6); }
+
+/* Preview / cover-page styles moved from HTML */
+#cover-page {
+	width: 210mm;
+	min-height: 297mm;
+	padding: 20mm 25mm;
+	margin: auto;
+	background: white;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	line-height: 1.5;
+	color: black;
+	position: relative;
+}
+/* Make scaling origin predictable */
+#cover-page { transform-origin: top center; }
+
+.header-motto { font-style: italic; color: #555; font-size: 14pt; margin-bottom: 10px; }
+.uni-name { font-size: 20pt; font-weight: bold; margin-bottom: 15px; text-align: center; }
+.logo-container { height: 120px; margin: 5px 0 15px 0; display: flex; justify-content: center; }
+#preview-logo { max-height: 100%; width: auto; }
+.dept-name { font-size: 16pt; font-weight: bold; margin-top: 5px; }
+.series-text { font-size: 18pt; font-weight: bold; }
+.report-title { font-size: 24pt; font-weight: bold; margin-bottom: 30px; }
+
+.content-body { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.course-info { font-size: 15pt; text-align: center; margin-bottom: 30px; }
+
+.alignment-wrapper { width: 100%; max-width: 170mm; display: flex; flex-direction: column; align-items: flex-start; }
+
+.exp-section { margin-bottom: 40px; font-size: 15pt; width: 100%; }
+.exp-row { margin-bottom: 8px; display: flex; align-items: flex-start; }
+.exp-label { font-weight: bold; white-space: nowrap; }
+.triangle { font-size: 11pt; margin-right: 8px; }
+#outExpNo { color: black; font-weight: normal; }
+
+.submission-container { width: 100%; display: flex; justify-content: space-between; font-size: 15pt; margin-top: 10px; }
+.submission-box { width: 48%; }
+.sub-title { font-weight: bold; text-decoration: underline; margin-bottom: 12px; display: block; }
+.sub-details { line-height: 1.6; white-space: pre-line; }
+
+.date-section { position: absolute; bottom: 20mm; left: 25mm; font-size: 14pt; font-weight: bold; }
+.preview-area {
+	background: #e2e8f0;
+	padding: 40px 0;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	overflow: hidden;
+}
+
+
